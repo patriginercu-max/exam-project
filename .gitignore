@@ -1,0 +1,15 @@
+# 依赖与构建产物
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.venv/
+**/node_modules/
+**/dist/
+**/.vite/
+
+# 本地 SQLite 数据库（容器使用命名数据卷）
+backend/data/
+
+# 环境与日志
+.env
+*.log

@@ -1,0 +1,20 @@
+# 统一行尾为 LF，避免 Windows 的 core.autocrlf=true 造成两类致命问题：
+#   1) 数据包文件被转成 CRLF 后 SHA-256 变化，导致 `python -m app.seed`
+#      启动校验失败，容器无法启动（见 wrong-answers-20/SHA256SUMS）；
+#   2) backend/docker-entrypoint.sh 带 CRLF 后在 Linux 容器中
+#      出现 "bad interpreter" 而无法执行。
+* text=auto eol=lf
+
+# 数据包与随附说明必须逐字节原样保存：任何行尾转换都会破坏 SHA-256 校验
+wrong-answers-20/** -text
+03-wrong-answer-supplement/** -text
+
+# 二进制文件不做任何处理
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary

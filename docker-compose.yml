@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      # 绝对路径对应下面的 app-data 数据卷，容器重建后数据仍在
+      DATABASE_URL: sqlite:////data/app.db
+      DATASET_PATH: /app/dataset/dataset.json
+      SESSION_TTL_HOURS: "48"
+      SESSION_COOKIE_SECURE: "false"
+    volumes:
+      - app-data:/data
+      # 只读挂载随包数据，避免仓库里出现第二份数据集
+      - ./wrong-answers-20:/app/dataset:ro
+    expose:
+      - "8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).status == 200 else 1)
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  app-data:
